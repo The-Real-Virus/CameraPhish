@@ -40,7 +40,7 @@ Step 5: After Completing the process now u can run script
 
 ## 💡Tips !
 🌐 Must Use a URL shortener to make the tracking link look natural.  
-⚡ Recommended URL shortners : (https://bitly.com/),(https://grabify.link/),(https://t.ly/).  
+⚡ Recommended URL shortners : (https://bitly.com/) , (https://grabify.link/) , (https://t.ly/).  
 💀 Phishing link : "Send this link to victim".  
 📊 Cloudflare links refresh some times , re run the script then.  
 🔄 You can share one link to multiple victims.  
